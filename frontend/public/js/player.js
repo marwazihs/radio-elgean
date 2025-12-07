@@ -13,6 +13,7 @@ const statusIndicator = document.getElementById('statusIndicator');
 const trackTitle = document.getElementById('trackTitle');
 const trackArtist = document.getElementById('trackArtist');
 const albumArt = document.getElementById('albumArt');
+const qualityBadge = document.getElementById('qualityBadge');
 const recentlyPlayedToggle = document.getElementById('recentlyPlayedToggle');
 const recentlyPlayedContent = document.getElementById('recentlyPlayedContent');
 const historyList = document.getElementById('historyList');
@@ -300,6 +301,7 @@ async function fetchMetadata() {
         const metadata = await response.json();
         updateNowPlaying(metadata);
         updateRecentlyPlayed(metadata);
+        updateQualityBadge(metadata);
     } catch (error) {
         console.error('Error fetching metadata:', error);
     }
@@ -379,6 +381,29 @@ function toggleRecentlyPlayed() {
         recentlyPlayedContent.classList.add('hidden');
         recentlyPlayedToggle.classList.remove('expanded');
     }
+}
+
+function updateQualityBadge(metadata) {
+    if (!metadata || !qualityBadge) return;
+
+    // Format bit depth (handle both raw numbers and formatted strings)
+    let bitDepth = metadata.bit_depth || '24';
+    if (typeof bitDepth === 'number' || !bitDepth.includes('bit')) {
+        bitDepth = `${bitDepth}-bit`;
+    }
+
+    // Format sample rate (convert Hz to kHz if needed)
+    let sampleRate = metadata.sample_rate || '48000';
+    if (typeof sampleRate === 'number' || !sampleRate.includes('kHz')) {
+        // Convert Hz to kHz (e.g., 44100 -> 44.1, 48000 -> 48, 96000 -> 96)
+        const sampleRateNum = parseInt(sampleRate);
+        const kHz = sampleRateNum / 1000;
+        // Format to remove unnecessary decimals (48.0 -> 48, 44.1 -> 44.1)
+        sampleRate = `${kHz % 1 === 0 ? kHz : kHz.toFixed(1)} kHz`;
+    }
+
+    // Update the quality badge text
+    qualityBadge.textContent = `${bitDepth} / ${sampleRate} Lossless`;
 }
 
 // Like Feature Functions
