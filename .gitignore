@@ -1,0 +1,41 @@
+# Node.js
+frontend/node_modules/
+frontend/npm-debug.log
+
+# Python
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/.Python
+backend/venv/
+backend/env/
+backend/.venv
+
+# Database
+database/*.db
+database/*.db-journal
+
+# Environment variables
+.env
+frontend/.env
+backend/.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Radio style assets (design files)
+radio-style/
+*.zip

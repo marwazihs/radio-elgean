@@ -1,0 +1,36 @@
+const express = require('express');
+const path = require('path');
+const cors = require('cors');
+const axios = require('axios');
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const FLASK_API_URL = process.env.FLASK_API_URL || 'http://localhost:5000';
+
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+app.get('/', (req, res) => {
+  res.render('index', { title: 'Radio Elgean' });
+});
+
+app.get('/api/data', async (req, res) => {
+  try {
+    const response = await axios.get(`${FLASK_API_URL}/api/data`);
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching from Flask API:', error.message);
+    res.status(500).json({ error: 'Failed to fetch data from API' });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Express server running on http://localhost:${PORT}`);
+  console.log(`Connected to Flask API at ${FLASK_API_URL}`);
+});
