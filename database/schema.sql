@@ -17,6 +17,15 @@ CREATE TABLE IF NOT EXISTS radio_stations (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Track Likes Table
+CREATE TABLE IF NOT EXISTS track_likes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    track_identifier TEXT NOT NULL,
+    user_fingerprint TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(track_identifier, user_fingerprint)
+);
+
 -- Sample Data
 INSERT INTO users (username, email) VALUES
     ('admin', 'admin@radioelgean.com'),
