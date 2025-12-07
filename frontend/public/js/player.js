@@ -386,9 +386,21 @@ function toggleRecentlyPlayed() {
 function updateQualityBadge(metadata) {
     if (!metadata || !qualityBadge) return;
 
-    // Extract bit depth and sample rate from metadata
-    const bitDepth = metadata.bit_depth || '24-bit';
-    const sampleRate = metadata.sample_rate || '48 kHz';
+    // Format bit depth (handle both raw numbers and formatted strings)
+    let bitDepth = metadata.bit_depth || '24';
+    if (typeof bitDepth === 'number' || !bitDepth.includes('bit')) {
+        bitDepth = `${bitDepth}-bit`;
+    }
+
+    // Format sample rate (convert Hz to kHz if needed)
+    let sampleRate = metadata.sample_rate || '48000';
+    if (typeof sampleRate === 'number' || !sampleRate.includes('kHz')) {
+        // Convert Hz to kHz (e.g., 44100 -> 44.1, 48000 -> 48, 96000 -> 96)
+        const sampleRateNum = parseInt(sampleRate);
+        const kHz = sampleRateNum / 1000;
+        // Format to remove unnecessary decimals (48.0 -> 48, 44.1 -> 44.1)
+        sampleRate = `${kHz % 1 === 0 ? kHz : kHz.toFixed(1)} kHz`;
+    }
 
     // Update the quality badge text
     qualityBadge.textContent = `${bitDepth} / ${sampleRate} Lossless`;
