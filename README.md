@@ -27,12 +27,12 @@ radio-elgean/
 │   └── package.json
 ├── backend/                      # Flask REST API (Port 5001)
 │   ├── app.py                   # Flask application with API endpoints
-│   ├── models.py                # User, RadioStation, Track models
+│   ├── models.py                # Track model for like feature
 │   ├── db_utils.py              # Database connection utilities
 │   ├── config.py                # Configuration management
 │   └── requirements.txt
 ├── database/                     # SQLite database
-│   ├── schema.sql               # Database schema (users, stations, track_likes)
+│   ├── schema.sql               # Database schema (track_likes table only)
 │   ├── init_db.py               # Database initialization
 │   └── radio_elgean.db          # SQLite database file (generated)
 ├── LIKE_FEATURE.md              # Like feature documentation
@@ -137,27 +137,15 @@ npm start
 
 ### Flask Backend (Port 5001)
 
-**User & Station Management:**
 - `GET /` - API info and available endpoints
-- `GET /api/data` - Get summary data (user and station counts)
-- `GET /api/users` - Get all users
-- `POST /api/users` - Create a new user
-- `GET /api/users/<id>` - Get user by ID
-- `GET /api/stations` - Get all radio stations
-- `POST /api/stations` - Create a new station
-- `GET /api/stations/<id>` - Get station by ID
-
-**Like Feature Endpoints:**
+- `GET /api/user-ip` - Get client IP address
+  - Response: `{status, ip}`
 - `POST /api/tracks/like` - Toggle like/unlike for a track
   - Body: `{track_identifier, user_fingerprint}`
   - Response: `{status, liked, like_count}`
 - `POST /api/tracks/is-liked` - Check if user liked a track
   - Body: `{track_identifier, user_fingerprint}`
   - Response: `{status, liked, like_count}`
-- `GET /api/tracks/like-count/<track_identifier>` - Get total likes for a track
-  - Response: `{status, track_identifier, like_count}`
-- `GET /api/user-ip` - Get client IP address
-  - Response: `{status, ip}`
 
 ### Express Frontend (Port 3000)
 
@@ -208,25 +196,14 @@ SECRET_KEY=your-secret-key-here
 
 ## Database Schema
 
-### users Table
-- `id` - Primary key (INTEGER)
-- `username` - Unique username (TEXT)
-- `email` - Unique email (TEXT)
-- `created_at` - Creation timestamp (TIMESTAMP)
-
-### radio_stations Table
-- `id` - Primary key (INTEGER)
-- `name` - Station name (TEXT)
-- `frequency` - Radio frequency (TEXT)
-- `description` - Station description (TEXT)
-- `created_at` - Creation timestamp (TIMESTAMP)
-
 ### track_likes Table
+The application uses a single table to track anonymous user engagement with tracks:
+
 - `id` - Primary key (INTEGER)
 - `track_identifier` - Unique track ID in format "artist|title" (TEXT)
 - `user_fingerprint` - Hashed user fingerprint + IP (TEXT)
 - `created_at` - Creation timestamp (TIMESTAMP)
-- **UNIQUE Constraint**: `(track_identifier, user_fingerprint)` - Prevents duplicate likes
+- **UNIQUE Constraint**: `(track_identifier, user_fingerprint)` - Prevents duplicate likes per user per track
 
 ## Testing the Like Feature
 
