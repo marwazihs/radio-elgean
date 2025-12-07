@@ -18,23 +18,27 @@
             </div>
 
             <div class="now-playing">
+                <div class="album-art-container">
+                    <img id="albumArt" src="https://d3d4yli4hf5bmh.cloudfront.net/cover.jpg" alt="Album Art" class="album-art">
+                </div>
                 <div class="track-info">
                     <div class="track-title" id="trackTitle">Radio Elgean Live</div>
                     <div class="track-artist" id="trackArtist">Crystal Clear Audio</div>
                 </div>
+
                 <div class="status-indicator" id="statusIndicator">
                     <span class="status-dot"></span>
-                    <span class="status-text">Ready to play</span>
+                    <span class="status-text">Ready to stream</span>
                 </div>
             </div>
 
             <div class="player-controls">
-                <button id="playPauseBtn" class="control-btn play-btn" aria-label="Play">
-                    <svg class="play-icon" viewBox="0 0 24 24" width="32" height="32">
+                <button id="streamBtn" class="control-btn stream-btn" aria-label="Start Stream">
+                    <svg class="start-icon" viewBox="0 0 24 24" width="32" height="32">
                         <path d="M8 5v14l11-7z" fill="currentColor"/>
                     </svg>
-                    <svg class="pause-icon hidden" viewBox="0 0 24 24" width="32" height="32">
-                        <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" fill="currentColor"/>
+                    <svg class="stop-icon hidden" viewBox="0 0 24 24" width="32" height="32">
+                        <rect x="6" y="6" width="12" height="12" fill="currentColor"/>
                     </svg>
                 </button>
             </div>
@@ -50,6 +54,20 @@
                 </button>
                 <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="70" aria-label="Volume">
                 <span id="volumeValue" class="volume-value">70%</span>
+            </div>
+
+            <div class="recently-played-widget">
+                <button id="recentlyPlayedToggle" class="widget-toggle" aria-label="Toggle Recently Played">
+                    <span class="widget-title">Recently Played</span>
+                    <svg class="toggle-icon" viewBox="0 0 24 24" width="20" height="20">
+                        <path d="M7 10l5 5 5-5z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <div id="recentlyPlayedContent" class="widget-content hidden">
+                    <div class="history-list" id="historyList">
+                        <div class="loading-message">Loading history...</div>
+                    </div>
+                </div>
             </div>
 
             <audio id="radioStream" preload="none"></audio>

@@ -30,6 +30,18 @@ app.get('/api/data', async (req, res) => {
   }
 });
 
+app.get('/api/metadata', async (req, res) => {
+  try {
+    const response = await axios.get('https://d3d4yli4hf5bmh.cloudfront.net/metadatav2.json', {
+      timeout: 5000
+    });
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching metadata:', error.message);
+    res.status(500).json({ error: 'Failed to fetch metadata' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Express server running on http://localhost:${PORT}`);
   console.log(`Connected to Flask API at ${FLASK_API_URL}`);

@@ -75,6 +75,29 @@ body {
     margin-bottom: 2rem;
 }
 
+/* Album Art */
+.album-art-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.album-art {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(31, 78, 35, 0.15);
+    object-fit: cover;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.album-art:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 16px rgba(31, 78, 35, 0.2);
+}
+
 .track-info {
     margin-bottom: 1rem;
 }
@@ -169,11 +192,11 @@ body {
     display: none;
 }
 
-.control-btn.playing .play-icon {
+.control-btn.streaming .start-icon {
     display: none;
 }
 
-.control-btn.playing .pause-icon {
+.control-btn.streaming .stop-icon {
     display: block;
 }
 
@@ -290,6 +313,10 @@ body {
         padding: 0.35rem 0.85rem;
     }
 
+    .album-art {
+        max-width: 240px;
+    }
+
     .track-title {
         font-size: 1.1rem;
     }
@@ -347,6 +374,139 @@ body {
 .volume-slider:focus {
     outline: 3px solid var(--teal);
     outline-offset: 3px;
+}
+
+/* Track Update Animation */
+.track-title.track-update {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0.5;
+        transform: translateY(-5px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Recently Played Widget */
+.recently-played-widget {
+    margin-top: 1.5rem;
+}
+
+.widget-toggle {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--white);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.widget-toggle:hover {
+    background: var(--mint);
+}
+
+.widget-toggle.expanded .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.widget-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--charcoal);
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+    color: var(--teal);
+}
+
+.widget-content {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+}
+
+.widget-content:not(.hidden) {
+    max-height: 500px;
+    opacity: 1;
+    padding-top: 1rem;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--white);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+.history-item:hover {
+    background: var(--mint);
+}
+
+.history-number {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--teal);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.history-track {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.history-title {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--charcoal);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.history-artist {
+    font-size: 0.8rem;
+    color: var(--teal);
+    margin-top: 0.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.loading-message,
+.no-history {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--charcoal);
+    opacity: 0.6;
+    font-size: 0.9rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
