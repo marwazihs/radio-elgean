@@ -42,6 +42,15 @@ app.get('/api/metadata', async (req, res) => {
   }
 });
 
+app.get('/api/user-ip', (req, res) => {
+  // Get client IP from various headers, fallback to remote address
+  const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() ||
+             req.headers['x-real-ip'] ||
+             req.socket.remoteAddress ||
+             'unknown';
+  res.json({ status: 'success', ip });
+});
+
 app.listen(PORT, () => {
   console.log(`Express server running on http://localhost:${PORT}`);
   console.log(`Connected to Flask API at ${FLASK_API_URL}`);

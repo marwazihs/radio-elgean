@@ -132,6 +132,79 @@ Update UI (Now Playing + Recently Played)
 - Widget styling in `style.css` (lines 354-483)
 - Album art styling in `style.css` (lines 78-99)
 
+### Like Feature (Phase 2)
+
+Users can like/unlike tracks currently playing on the radio. Each like is tracked per user (identified by IP + browser fingerprint) and persists in the database.
+
+**Like System Architecture:**
+```
+Browser (fingerprint.js)
+    ↓ [Generate unique user ID]
+    ↓ [IP + Browser Fingerprint hash]
+Frontend (player.js)
+    ↓ [Toggle like on button click]
+    ↓ [POST /api/tracks/like]
+Flask Backend (app.py)
+    ↓ [Check existing like, toggle status]
+    ↓ [Store in database]
+SQLite (track_likes table)
+    ↓ [One user can only like each track once]
+    ↓ [Return updated like count]
+```
+
+**Database Schema:**
+```sql
+CREATE TABLE track_likes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    track_identifier TEXT NOT NULL,
+    user_fingerprint TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(track_identifier, user_fingerprint)
+);
+```
+
+**Backend API Endpoints:**
+- `GET /api/user-ip` - Returns client IP address for fingerprinting
+- `POST /api/tracks/like` - Toggle like status (like/unlike)
+  - Request: `{track_identifier, user_fingerprint}`
+  - Response: `{status, liked, like_count}`
+- `POST /api/tracks/is-liked` - Check if user liked a track
+  - Request: `{track_identifier, user_fingerprint}`
+  - Response: `{status, liked, like_count}`
+- `GET /api/tracks/like-count/<track_identifier>` - Get total likes for a track
+
+**Frontend Implementation:**
+- `frontend/public/js/fingerprint.js` - Browser fingerprinting library
+  - Generates unique user ID from: user agent, screen resolution, timezone, canvas fingerprint, WebGL info, IP address
+  - Stores fingerprint in localStorage for consistency
+- `player.js` functions:
+  - `initializeLikeFeature()` - Initialize user fingerprint on page load
+  - `generateTrackIdentifier()` - Create unique track ID from artist + title
+  - `toggleLike()` - Handle like button clicks, communicate with backend
+  - `checkAndUpdateLikeStatus()` - Check like status when track changes
+  - `updateLikeUI()` - Update button state and like count display
+- Integration: Like status checked automatically when metadata changes (new track)
+
+**UI/UX:**
+- Heart icon button (44px) positioned between track info and status indicator
+- Displays like count next to icon
+- Heart is outlined (charcoal) when not liked
+- Heart fills red (#E63946) with glow effect when liked
+- Hover effect: scales up 15%, background tints mint
+- Click animation: heartbeat pulse when liking
+- Fully responsive design, resizes on mobile
+
+**Key Features:**
+- One like per user per track (UNIQUE constraint in database)
+- Global like count shown (all users' likes combined)
+- User-specific like state persists across sessions (localStorage + database)
+- Different users (different IPs/browsers) have separate like histories
+- Graceful fallback if API unavailable (local UI toggle still works)
+
+**Files:**
+- Created: `frontend/public/js/fingerprint.js`
+- Modified: `database/schema.sql`, `backend/models.py`, `backend/app.py`, `frontend/views/index.ejs`, `frontend/public/css/style.css`, `frontend/public/js/player.js`, `frontend/server.js`
+
 **Future Roadmap:**
 See `ROADMAP.md` for planned features including content badges, audio quality verification, track statistics, favorites system, and more.
 
@@ -150,7 +223,14 @@ The radio player follows **Radio Calico Brand Guidelines** (`radio-style/RadioCa
 **radio_stations:**
 - id (PK), name, frequency, description, created_at
 
-Access via `models.py` methods: `User.get_all()`, `User.create()`, `RadioStation.get_all()`, etc.
+**track_likes:**
+- id (PK), track_identifier, user_fingerprint, created_at
+- UNIQUE(track_identifier, user_fingerprint) - Ensures one like per user per track
+
+Access via `models.py` methods:
+- User: `User.get_all()`, `User.create()`, `User.get_by_id()`
+- RadioStation: `RadioStation.get_all()`, `RadioStation.create()`, `RadioStation.get_by_id()`
+- Track: `Track.like_track()`, `Track.unlike_track()`, `Track.is_liked_by_user()`, `Track.get_like_count()`, `Track.get_track_likes()`
 
 ## Environment Configuration
 

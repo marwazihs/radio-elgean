@@ -16,6 +16,8 @@ const albumArt = document.getElementById('albumArt');
 const recentlyPlayedToggle = document.getElementById('recentlyPlayedToggle');
 const recentlyPlayedContent = document.getElementById('recentlyPlayedContent');
 const historyList = document.getElementById('historyList');
+const likeBtn = document.getElementById('likeBtn');
+const likeCount = document.getElementById('likeCount');
 
 // State
 let hls = null;
@@ -24,12 +26,16 @@ let isMuted = false;
 let lastVolume = 70;
 let metadataInterval = null;
 let lastTrackTitle = '';
+let currentTrackIdentifier = '';
+let currentUserFingerprint = null;
+let isLiked = false;
 
 // Initialize player on page load
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     initPlayer();
     setupEventListeners();
     loadSavedVolume();
+    await initializeLikeFeature();
     initMetadata();
 });
 
@@ -85,6 +91,7 @@ function setupEventListeners() {
     muteBtn.addEventListener('click', toggleMute);
     volumeSlider.addEventListener('input', handleVolumeChange);
     recentlyPlayedToggle.addEventListener('click', toggleRecentlyPlayed);
+    likeBtn.addEventListener('click', toggleLike);
 
     // Audio events
     audio.addEventListener('playing', () => {
@@ -315,6 +322,13 @@ function updateNowPlaying(metadata) {
         // Refresh album art with cache-busting timestamp
         const timestamp = new Date().getTime();
         albumArt.src = `https://d3d4yli4hf5bmh.cloudfront.net/cover.jpg?t=${timestamp}`;
+
+        // Update track identifier and check like status
+        const trackIdentifier = generateTrackIdentifier(metadata);
+        if (trackIdentifier !== currentTrackIdentifier) {
+            currentTrackIdentifier = trackIdentifier;
+            checkAndUpdateLikeStatus(currentTrackIdentifier);
+        }
     }
 
     // Update artist/album info
@@ -364,6 +378,111 @@ function toggleRecentlyPlayed() {
     } else {
         recentlyPlayedContent.classList.add('hidden');
         recentlyPlayedToggle.classList.remove('expanded');
+    }
+}
+
+// Like Feature Functions
+async function initializeLikeFeature() {
+    try {
+        currentUserFingerprint = await userFingerprint.getFingerprintId();
+        console.log('User fingerprint initialized:', currentUserFingerprint);
+    } catch (error) {
+        console.error('Failed to initialize user fingerprint:', error);
+    }
+}
+
+function generateTrackIdentifier(metadata) {
+    if (!metadata || !metadata.artist || !metadata.title) {
+        return null;
+    }
+    // Create unique identifier from artist + title
+    return `${metadata.artist}|${metadata.title}`.toLowerCase();
+}
+
+async function toggleLike() {
+    if (!currentTrackIdentifier || !currentUserFingerprint) {
+        console.warn('Track or fingerprint not available');
+        return;
+    }
+
+    likeBtn.disabled = true;
+
+    try {
+        const response = await fetch('http://localhost:5001/api/tracks/like', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                track_identifier: currentTrackIdentifier,
+                user_fingerprint: currentUserFingerprint
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            isLiked = data.liked;
+            updateLikeUI(data.like_count, isLiked);
+        }
+    } catch (error) {
+        console.error('Error toggling like:', error);
+        // Fallback to local toggle if API fails
+        isLiked = !isLiked;
+        updateLikeUI(parseInt(likeCount.textContent), isLiked);
+    } finally {
+        likeBtn.disabled = false;
+    }
+}
+
+async function checkAndUpdateLikeStatus(trackIdentifier) {
+    if (!trackIdentifier || !currentUserFingerprint) {
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:5001/api/tracks/is-liked', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                track_identifier: trackIdentifier,
+                user_fingerprint: currentUserFingerprint
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            isLiked = data.liked;
+            updateLikeUI(data.like_count, isLiked);
+        }
+    } catch (error) {
+        console.error('Error checking like status:', error);
+        // Reset to unliked state on error
+        isLiked = false;
+        updateLikeUI(0, false);
+    }
+}
+
+function updateLikeUI(count, liked) {
+    likeCount.textContent = count;
+
+    if (liked) {
+        likeBtn.classList.add('liked');
+        likeBtn.setAttribute('aria-label', 'Unlike this track');
+    } else {
+        likeBtn.classList.remove('liked');
+        likeBtn.setAttribute('aria-label', 'Like this track');
     }
 }
 
