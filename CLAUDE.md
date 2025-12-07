@@ -54,7 +54,7 @@ npm run dev                  # Development with nodemon
 
 2. **Backend (Flask API)**
    - REST API on port 5001
-   - Models in `backend/models.py` (User, RadioStation)
+   - Models in `backend/models.py` (Track model for like feature)
    - Database utilities in `backend/db_utils.py`
    - Configuration managed via `backend/config.py` (reads from .env)
    - Entry point: `backend/app.py`
@@ -171,7 +171,6 @@ CREATE TABLE track_likes (
 - `POST /api/tracks/is-liked` - Check if user liked a track
   - Request: `{track_identifier, user_fingerprint}`
   - Response: `{status, liked, like_count}`
-- `GET /api/tracks/like-count/<track_identifier>` - Get total likes for a track
 
 **Frontend Implementation:**
 - `frontend/public/js/fingerprint.js` - Browser fingerprinting library
@@ -217,20 +216,12 @@ The radio player follows **Radio Calico Brand Guidelines** (`radio-style/RadioCa
 
 ## Database Schema
 
-**users:**
-- id (PK), username (unique), email (unique), created_at
-
-**radio_stations:**
-- id (PK), name, frequency, description, created_at
-
 **track_likes:**
 - id (PK), track_identifier, user_fingerprint, created_at
 - UNIQUE(track_identifier, user_fingerprint) - Ensures one like per user per track
 
 Access via `models.py` methods:
-- User: `User.get_all()`, `User.create()`, `User.get_by_id()`
-- RadioStation: `RadioStation.get_all()`, `RadioStation.create()`, `RadioStation.get_by_id()`
-- Track: `Track.like_track()`, `Track.unlike_track()`, `Track.is_liked_by_user()`, `Track.get_like_count()`, `Track.get_track_likes()`
+- Track: `Track.like_track()`, `Track.unlike_track()`, `Track.is_liked_by_user()`, `Track.get_like_count()`
 
 ## Environment Configuration
 

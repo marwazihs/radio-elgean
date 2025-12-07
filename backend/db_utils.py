@@ -7,27 +7,28 @@ def get_db_connection():
     return conn
 
 def init_db():
+    """Initialize database by executing schema.sql"""
+    import os
+
+    # Get path to schema.sql
+    schema_path = os.path.join(
+        os.path.dirname(__file__),
+        '..',
+        'database',
+        'schema.sql'
+    )
+
+    if not os.path.exists(schema_path):
+        print(f"Error: schema.sql not found at {schema_path}")
+        return
+
+    # Execute schema.sql
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE,
-            email TEXT NOT NULL UNIQUE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS radio_stations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            frequency TEXT,
-            description TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
+    with open(schema_path, 'r') as f:
+        schema_sql = f.read()
+        cursor.executescript(schema_sql)
 
     conn.commit()
     conn.close()
