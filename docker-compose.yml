@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # Development image with hot-reload capabilities
+  radio-elgean:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: radio-elgean-dev
+    ports:
+      - "3000:3000"
+      - "5001:5001"
+    volumes:
+      # Mount source code for hot-reload
+      - ./frontend:/app/frontend
+      - ./backend:/app/backend
+      - ./database:/app/database
+      # Exclude node_modules and venv for performance
+      - /app/frontend/node_modules
+      - /app/backend/venv
+    environment:
+      - NODE_ENV=development
+      - FLASK_ENV=development
+      - FLASK_PORT=5001
+      - PORT=3000
+      - FLASK_API_URL=http://localhost:5001
+    env_file:
+      - .env.development
+    command: sh -c "cd /app && ./entrypoint.sh"
+    networks:
+      - radio-network
+
+networks:
+  radio-network:
+    driver: bridge

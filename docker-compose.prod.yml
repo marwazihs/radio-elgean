@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # Production image with optimized layers
+  radio-elgean:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: radio-elgean-prod
+    restart: always
+    ports:
+      - "8080:3000"
+      - "5001:5001"
+    volumes:
+      # Only mount database for persistence
+      - ./data:/app/database
+    environment:
+      - NODE_ENV=production
+      - FLASK_ENV=production
+      - FLASK_PORT=5001
+      - PORT=3000
+    env_file:
+      - .env.production
+    networks:
+      - radio-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    # Resource limits (adjust based on your needs)
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+networks:
+  radio-network:
+    driver: bridge

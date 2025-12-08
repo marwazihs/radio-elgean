@@ -94,6 +94,234 @@ npm start
 
 **Note:** Flask must run on port 5001 (not 5000) because macOS blocks port 5000 for AirPlay.
 
+## Installation Using Docker
+
+Docker allows you to run Radio Elgean in self-contained containers without installing dependencies locally. Complete setup from download to deployment.
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) (includes Docker and Docker Compose)
+- Minimum 2GB free disk space (production image ~500MB, development image ~1.2GB)
+- 512MB RAM available for containers
+
+### 1. Download & Setup
+
+**Clone or download the repository:**
+```bash
+# Clone the repository
+git clone <repository-url>
+cd radio-elgean
+
+# Or download and extract the ZIP file
+unzip radio-elgean.zip
+cd radio-elgean
+```
+
+**Verify Docker is running:**
+```bash
+docker --version
+docker-compose --version
+```
+
+### 2. Environment Configuration
+
+**Create production environment file (`.env.production`):**
+```bash
+# Production Configuration
+NODE_ENV=production
+FLASK_ENV=production
+
+# Frontend Configuration
+PORT=3000
+FLASK_API_URL=http://localhost:5001
+
+# Backend Configuration
+FLASK_PORT=5001
+# IMPORTANT: Change this to a strong random secret before production deployment
+SECRET_KEY=your-strong-random-secret-key-change-this
+DEBUG=false
+LOG_LEVEL=warning
+```
+
+**Generate a strong secret key (optional but recommended):**
+```bash
+openssl rand -hex 32
+# Copy the output and update SECRET_KEY in .env.production
+```
+
+### 3. Development Environment (with hot-reload)
+
+**Start all services with hot-reload support:**
+```bash
+docker-compose up --build
+```
+
+This will:
+- Build the development image (~1.2GB)
+- Start Flask backend on port 5001
+- Start Express frontend on port 3000
+- Enable live reload for code changes
+- Mount source code as volumes for real-time development
+
+**Access the application:**
+- Frontend: http://localhost:3000
+- API: http://localhost:5001
+
+**View logs:**
+```bash
+# All services
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f radio-elgean
+```
+
+**Stop services:**
+```bash
+docker-compose down
+```
+
+### 4. Production Environment
+
+**Build production image (~500MB):**
+```bash
+docker-compose -f docker-compose.prod.yml build
+```
+
+**Run production container:**
+```bash
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+The `-d` flag runs containers in background (detached mode).
+
+**Access the application:**
+- Frontend: http://localhost:8080
+- API: http://localhost:5001
+
+**View logs:**
+```bash
+docker-compose -f docker-compose.prod.yml logs -f
+```
+
+**Check container status:**
+```bash
+docker-compose -f docker-compose.prod.yml ps
+```
+
+**Stop services:**
+```bash
+docker-compose -f docker-compose.prod.yml down
+```
+
+### 5. Server Deployment (Linux/Cloud)
+
+**On a remote server (Ubuntu/Debian example):**
+
+```bash
+# 1. Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+newgrp docker
+
+# 2. Install Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# 3. Clone repository
+git clone <repository-url>
+cd radio-elgean
+
+# 4. Configure environment
+nano .env.production
+# Update SECRET_KEY and other settings as needed
+
+# 5. Start production containers
+docker-compose -f docker-compose.prod.yml up -d
+
+# 6. Verify deployment
+docker-compose -f docker-compose.prod.yml ps
+curl http://localhost:8080  # Should return HTML
+```
+
+### 6. Database Initialization
+
+The database automatically initializes on first container startup. No manual initialization needed.
+
+**To reset database in production:**
+```bash
+# Stop containers
+docker-compose -f docker-compose.prod.yml down
+
+# Remove persistent data
+rm -rf ./data/radio_elgean.db
+
+# Restart (database will be recreated)
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+### 7. Troubleshooting
+
+**Port already in use:**
+```bash
+# Check what's using the port
+lsof -i :8080  # or :3000, :5001
+
+# Use different ports in docker-compose files
+# Edit docker-compose.prod.yml and change ports:
+#   - "9090:3000"  # Use 9090 instead of 8080
+```
+
+**Database initialization failed:**
+```bash
+# Check container logs
+docker-compose -f docker-compose.prod.yml logs radio-elgean
+
+# Verify database file permissions
+docker-compose -f docker-compose.prod.yml exec radio-elgean ls -la /app/database/
+```
+
+**Containers won't start:**
+```bash
+# Rebuild without cache
+docker-compose -f docker-compose.prod.yml down
+docker-compose -f docker-compose.prod.yml up --build --no-cache
+
+# Check Docker daemon
+docker ps
+```
+
+### 8. Docker Commands Reference
+
+```bash
+# Build only
+docker-compose -f docker-compose.prod.yml build
+
+# Start in foreground (see logs)
+docker-compose -f docker-compose.prod.yml up
+
+# Start in background
+docker-compose -f docker-compose.prod.yml up -d
+
+# View real-time logs
+docker-compose -f docker-compose.prod.yml logs -f
+
+# Restart services
+docker-compose -f docker-compose.prod.yml restart
+
+# Rebuild and restart
+docker-compose -f docker-compose.prod.yml up -d --build
+
+# Stop services
+docker-compose -f docker-compose.prod.yml down
+
+# View running containers
+docker ps
+```
+
+For detailed Docker documentation, see [DOCKER.md](./DOCKER.md).
+
 ## Features
 
 ### 🎙️ Live Radio Streaming
