@@ -109,7 +109,7 @@ Docker allows you to run Radio Elgean in self-contained containers without insta
 **Clone or download the repository:**
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/marwazihs/radio-elgean.git
 cd radio-elgean
 
 # Or download and extract the ZIP file
@@ -199,6 +199,41 @@ The `-d` flag runs containers in background (detached mode).
 - Frontend: http://localhost:8080
 - API: http://localhost:5001
 
+**Customizing the Frontend Port:**
+
+By default, the production container exposes the frontend on port 8080. To use a different port (e.g., port 80 for direct web access):
+
+1. **Edit `docker-compose.prod.yml`:**
+```bash
+nano docker-compose.prod.yml
+```
+
+2. **Find the ports section and change the host port:**
+```yaml
+services:
+  radio-elgean:
+    ports:
+      - "80:3000"      # Change "8080" to "80" (or any port you want)
+      - "5001:5001"
+```
+
+3. **Restart the container:**
+```bash
+docker-compose -f docker-compose.prod.yml down
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+4. **Access at the new port:**
+```
+http://localhost:80
+# Or simply: http://localhost (if using port 80)
+```
+
+**Common Port Configurations:**
+- Port 80: Public HTTP access (requires sudo/elevated privileges)
+- Port 3000-9000: Development/staging environments
+- Port 8080: Standard alternative HTTP port
+
 **View logs:**
 ```bash
 docker-compose -f docker-compose.prod.yml logs -f
@@ -230,7 +265,7 @@ sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 
 # 3. Clone repository
-git clone <repository-url>
+git clone https://github.com/marwazihs/radio-elgean.git
 cd radio-elgean
 
 # 4. Configure environment
