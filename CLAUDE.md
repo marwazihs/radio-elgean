@@ -42,6 +42,40 @@ npm start                    # Production
 npm run dev                  # Development with nodemon
 ```
 
+### Docker Start (Development)
+
+**Start all services in Docker with hot-reload:**
+```bash
+docker-compose up --build
+```
+
+This builds the development image and starts both services with volume mounts for live code reloading.
+
+**Access the application:**
+- Frontend: http://localhost:3000
+- API: http://localhost:5001
+
+### Docker Start (Production)
+
+**Build and run production container:**
+```bash
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+**Access the application:**
+- Frontend: http://localhost:8080
+- API: http://localhost:5001
+
+**View logs:**
+```bash
+docker-compose -f docker-compose.prod.yml logs -f
+```
+
+**Stop containers:**
+```bash
+docker-compose -f docker-compose.prod.yml down
+```
+
 ## Architecture
 
 ### Three-Layer Architecture

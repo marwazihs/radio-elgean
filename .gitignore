@@ -18,6 +18,8 @@ database/*.db-journal
 
 # Environment variables
 .env
+.env.development
+.env.production
 frontend/.env
 backend/.env
 
@@ -35,6 +37,9 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# Docker runtime data
+data/
 
 # Radio style assets (design files)
 radio-style/
