@@ -196,12 +196,12 @@ docker-compose -f docker-compose.prod.yml up -d
 The `-d` flag runs containers in background (detached mode).
 
 **Access the application:**
-- Frontend: http://localhost:8080
+- Frontend: http://localhost
 - API: http://localhost:5001
 
 **Customizing the Frontend Port:**
 
-By default, the production container exposes the frontend on port 8080. To use a different port (e.g., port 80 for direct web access):
+By default, the production container exposes the frontend on port 80. To use a different port:
 
 1. **Edit `docker-compose.prod.yml`:**
 ```bash
@@ -213,7 +213,7 @@ nano docker-compose.prod.yml
 services:
   radio-elgean:
     ports:
-      - "80:3000"      # Change "8080" to "80" (or any port you want)
+      - "8080:3000"    # Change "80" to "8080" (or any port you want)
       - "5001:5001"
 ```
 
@@ -225,12 +225,11 @@ docker-compose -f docker-compose.prod.yml up -d
 
 4. **Access at the new port:**
 ```
-http://localhost:80
-# Or simply: http://localhost (if using port 80)
+http://localhost:8080
 ```
 
 **Common Port Configurations:**
-- Port 80: Public HTTP access (requires sudo/elevated privileges)
+- Port 80: Standard HTTP (default in this setup, requires sudo/elevated privileges to bind)
 - Port 3000-9000: Development/staging environments
 - Port 8080: Standard alternative HTTP port
 
@@ -277,7 +276,7 @@ docker-compose -f docker-compose.prod.yml up -d
 
 # 6. Verify deployment
 docker-compose -f docker-compose.prod.yml ps
-curl http://localhost:8080  # Should return HTML
+curl http://localhost  # Should return HTML
 ```
 
 ### 6. Database Initialization
@@ -301,11 +300,11 @@ docker-compose -f docker-compose.prod.yml up -d
 **Port already in use:**
 ```bash
 # Check what's using the port
-lsof -i :8080  # or :3000, :5001
+lsof -i :80  # or :3000, :5001
 
 # Use different ports in docker-compose files
 # Edit docker-compose.prod.yml and change ports:
-#   - "9090:3000"  # Use 9090 instead of 8080
+#   - "8080:3000"  # Use 8080 instead of 80
 ```
 
 **Database initialization failed:**
