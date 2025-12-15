@@ -443,17 +443,85 @@ npm run dev
 
 ### Environment Variables
 
+The application supports flexible port configuration through environment variables.
+
 **Frontend (.env):**
 ```
 PORT=3000
 FLASK_API_URL=http://localhost:5001
 ```
 
+- `PORT` - Frontend server port (default: 3000)
+- `FLASK_API_URL` - Backend API URL (default: http://localhost:5001)
+
 **Backend (.env):**
 ```
 FLASK_ENV=development
 FLASK_PORT=5001
 SECRET_KEY=your-secret-key-here
+```
+
+- `FLASK_PORT` - Backend API port (default: 5001)
+- `FLASK_ENV` - Environment mode: development or production
+- `SECRET_KEY` - Secret key for session management
+
+#### Port Configuration
+
+**Frontend (Express.js):**
+- Environment variable: `PORT`
+- Default: 3000
+- Read from: `frontend/server.js` line 8
+
+**Backend (Flask):**
+- Environment variable: `FLASK_PORT`
+- Default: 5001
+- Read from: `backend/config.py` line 11
+
+**Override ports at runtime:**
+
+```bash
+# Frontend with custom port
+PORT=8000 npm start
+
+# Backend with custom port
+FLASK_PORT=8001 python app.py
+
+# Docker: Set PORT via environment
+docker-compose up --build -e PORT=8000
+
+# Docker: Edit docker-compose.yml or docker-compose.prod.yml
+# environment:
+#   - PORT=8000
+#   - FLASK_PORT=8001
+```
+
+**Examples:**
+
+Development on custom ports:
+```bash
+# Terminal 1 - Backend on 8001
+FLASK_PORT=8001 python app.py
+
+# Terminal 2 - Frontend on 8000
+PORT=8000 npm start
+
+# Access at: http://localhost:8000 (and update FLASK_API_URL if needed)
+```
+
+Production on standard HTTP port:
+```bash
+# In docker-compose.prod.yml, currently set to:
+# ports:
+#   - "80:3000"      # Frontend on port 80
+#   - "5001:5001"    # Backend on port 5001
+
+docker-compose -f docker-compose.prod.yml up -d
+# Access at: http://localhost (port 80)
+```
+
+Temporary port override:
+```bash
+PORT=9000 FLASK_PORT=9001 docker-compose up --build
 ```
 
 ## Database Schema
