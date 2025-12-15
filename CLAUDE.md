@@ -304,9 +304,36 @@ SECRET_KEY=your-secret-key-here
 - Models use static methods (no ORM)
 - Manual SQL queries with parameter binding for safety
 
+## Port Configuration
+
+Both frontend and backend support dynamic port configuration via environment variables:
+
+**Frontend (Express.js):**
+- Environment variable: `PORT`
+- Default: 3000
+- Configured in: `frontend/server.js` line 8
+- Override: `PORT=8000 npm start`
+
+**Backend (Flask):**
+- Environment variable: `FLASK_PORT`
+- Default: 5001 (not 5000 due to macOS AirPlay blocking port 5000)
+- Configured in: `backend/config.py` line 11
+- Override: `FLASK_PORT=8001 python app.py`
+
+**Docker Usage:**
+```bash
+# Development
+docker-compose up --build
+# Uses PORT=3000, FLASK_PORT=5001 from docker-compose.yml
+
+# Production
+docker-compose -f docker-compose.prod.yml up -d
+# Uses PORT=3000 (mapped to host port 80), FLASK_PORT=5001 from docker-compose.prod.yml
+```
+
 ## Common Gotchas
 
-1. **Port 5000 Conflict:** Always use port 5001 for Flask due to macOS AirPlay
+1. **Port 5000 Conflict:** Always use port 5001 for Flask due to macOS AirPlay blocking port 5000. Use FLASK_PORT env var to override.
 2. **Virtual Environments:** Flask requires venv activation; backend/.env is read via python-dotenv
 3. **Static Assets:** Changes to CSS/JS require browser refresh; Express serves from /public
 4. **Database Location:** SQLite file is in database/, not backend/
@@ -315,3 +342,4 @@ SECRET_KEY=your-secret-key-here
 7. **Start/Stop vs Play/Pause:** The button is "Start/Stop" (not play/pause) - stopping fully disconnects the stream, restarting reconnects to the live position. This prevents sync issues between audio, metadata, and album art.
 8. **Album Art Caching:** Album art URL includes timestamp query parameter (`?t=timestamp`) to force fresh downloads when track changes
 9. **No Progress Bar:** Intentionally removed - live streams don't provide duration/elapsed time metadata, so any progress bar would be misleading
+10. **Dynamic Ports:** Both services read ports from environment variables, making them deployable on any port. Check .env files or docker-compose files to see current configuration.
