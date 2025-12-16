@@ -535,6 +535,8 @@ docker inspect radio-elgean-prod --format='{{.State.Health.Status}}'
 
 ## Troubleshooting
 
+This section covers the most common deployment issues and their solutions.
+
 ### Issue 1: Port 80 Already in Use
 
 **Symptoms:**
@@ -559,7 +561,46 @@ sudo systemctl disable nginx
 # Redeploy application
 ```
 
-### Issue 2: Database Not Initializing
+### Issue 2: .env.production File Not Found Error
+
+**Symptoms:**
+- Error message: "env file `/etc/dokploy/compose/.../code/.env.production` not found"
+- Docker command failed during deployment
+- Dokploy cannot find environment file
+
+**Root Cause:**
+- The `.env.production` file is not committed to git (correctly, as it contains secrets)
+- Dokploy is looking for this file on disk during deployment
+
+**Solution:**
+
+Option A (Recommended - Configure in Dokploy UI):
+1. Navigate to your application in Dokploy
+2. Go to **Environment Variables** section
+3. Add these variables directly:
+   ```
+   NODE_ENV=production
+   FLASK_ENV=production
+   PORT=3000
+   FLASK_PORT=5001
+   SECRET_KEY=<your-generated-secret>
+   DEBUG=false
+   LOG_LEVEL=warning
+   ```
+4. Save and redeploy
+
+Option B (Alternative - Already Fixed in Latest Code):
+- Update to latest `docker-compose.prod.yml` which removes the `env_file` reference
+- Dokploy will inject environment variables through the UI
+
+To update to the latest version:
+```bash
+git pull origin master
+```
+
+---
+
+### Issue 3: Database Not Initializing
 
 **Symptoms:**
 - API returns "no such table: track_likes" error
@@ -583,7 +624,7 @@ docker restart radio-elgean-prod
 docker exec radio-elgean-prod ls -la /app/database/
 ```
 
-### Issue 3: SSL Certificate Not Provisioning
+### Issue 4: SSL Certificate Not Provisioning
 
 **Symptoms:**
 - HTTPS not working after 10+ minutes
@@ -620,7 +661,7 @@ docker logs traefik 2>&1 | grep -i "certificate"
 - Domain not accessible via HTTP first
 - Let's Encrypt rate limit reached (100 certs/week per domain)
 
-### Issue 4: Application Not Accessible
+### Issue 5: Application Not Accessible
 
 **Symptoms:**
 - Cannot access application via browser
@@ -654,7 +695,7 @@ docker logs -f radio-elgean-prod
 # Look for errors
 ```
 
-### Issue 5: Metadata Not Updating
+### Issue 6: Metadata Not Updating
 
 **Symptoms:**
 - Now Playing shows "Loading..."
@@ -683,7 +724,7 @@ docker logs radio-elgean-prod 2>&1 | grep "Express"
 # Look for: "Express server listening on port 3000"
 ```
 
-### Issue 6: Backend API Not Responding
+### Issue 7: Backend API Not Responding
 
 **Symptoms:**
 - Like feature doesn't work
@@ -713,7 +754,7 @@ docker exec radio-elgean-prod ls -la /app/database/
 docker restart radio-elgean-prod
 ```
 
-### Issue 7: High Memory Usage
+### Issue 8: High Memory Usage
 
 **Symptoms:**
 - Container using >512MB memory
