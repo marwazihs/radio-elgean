@@ -343,3 +343,48 @@ docker-compose -f docker-compose.prod.yml up -d
 8. **Album Art Caching:** Album art URL includes timestamp query parameter (`?t=timestamp`) to force fresh downloads when track changes
 9. **No Progress Bar:** Intentionally removed - live streams don't provide duration/elapsed time metadata, so any progress bar would be misleading
 10. **Dynamic Ports:** Both services read ports from environment variables, making them deployable on any port. Check .env files or docker-compose files to see current configuration.
+
+## Dokploy Deployment
+
+**Live URL:** https://radio.elgean.com
+
+### Critical Dokploy Configuration
+
+**DO NOT expose ports in docker-compose.prod.yml when using Dokploy/Traefik:**
+- Remove all `ports:` and `expose:` directives from docker-compose.prod.yml
+- Use `dokploy-network` (external: true) instead of a custom network
+- Traefik handles all external routing via labels that Dokploy automatically injects
+- Configure the internal container port (3000) in Dokploy UI under Domain settings → Container Port
+
+**Correct docker-compose.prod.yml for Dokploy:**
+```yaml
+services:
+  radio-elgean:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    networks:
+      - dokploy-network
+    # NO ports: or expose: directives!
+
+networks:
+  dokploy-network:
+    external: true
+```
+
+**Why this matters:**
+- Dokploy runs Traefik as a reverse proxy on ports 80/443
+- Traefik routes traffic based on hostname (e.g., radio.elgean.com) to containers
+- If you expose ports like `80:3000`, it conflicts with Traefik already using port 80
+- The Container Port setting in Dokploy tells Traefik which internal port to route to
+
+**Deployment Architecture:**
+```
+User → radio.elgean.com → Traefik (80/443) → dokploy-network → container:3000
+```
+
+**DNS Configuration:**
+- Set A record pointing to VPS IP
+- Disable Cloudflare proxy (orange cloud) for direct connection to Traefik
+- Let's Encrypt SSL is provisioned automatically by Traefik
