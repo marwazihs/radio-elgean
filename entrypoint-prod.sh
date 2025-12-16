@@ -103,7 +103,7 @@ echo "=========================================="
 echo "Radio Elgean is running in production"
 echo "=========================================="
 echo ""
-echo "Frontend:  http://localhost:8080"
+echo "Frontend:  http://localhost:3000"
 echo "API:       http://localhost:5001"
 echo ""
 
