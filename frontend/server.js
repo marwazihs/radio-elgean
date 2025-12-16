@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const FLASK_API_URL = process.env.FLASK_API_URL || 'http://localhost:5000';
+const FLASK_API_URL = process.env.FLASK_API_URL || 'http://localhost:5001';
 
 app.use(cors());
 app.use(express.json());
@@ -49,6 +49,38 @@ app.get('/api/user-ip', (req, res) => {
              req.socket.remoteAddress ||
              'unknown';
   res.json({ status: 'success', ip });
+});
+
+// Proxy endpoint for liking tracks
+app.post('/api/tracks/like', async (req, res) => {
+  try {
+    const response = await axios.post(`${FLASK_API_URL}/api/tracks/like`, req.body, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      timeout: 5000
+    });
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error liking track:', error.message);
+    res.status(500).json({ status: 'error', message: 'Failed to like track' });
+  }
+});
+
+// Proxy endpoint for checking like status
+app.post('/api/tracks/is-liked', async (req, res) => {
+  try {
+    const response = await axios.post(`${FLASK_API_URL}/api/tracks/is-liked`, req.body, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      timeout: 5000
+    });
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error checking like status:', error.message);
+    res.status(500).json({ status: 'error', message: 'Failed to check like status' });
+  }
 });
 
 app.listen(PORT, () => {
