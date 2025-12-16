@@ -8,6 +8,7 @@ services:
     container_name: radio-elgean-prod
     restart: always
     ports:
+      - "3000:3000"
       - "5001:5001"
     volumes:
       # Only mount database for persistence
