@@ -7,9 +7,6 @@ services:
       target: production
     container_name: radio-elgean-prod
     restart: always
-    expose:
-      - "3000"
-      - "5001"
     volumes:
       # Only mount database for persistence
       - ./data:/app/database
@@ -19,7 +16,7 @@ services:
       - FLASK_PORT=5001
       - PORT=3000
     networks:
-      - radio-network
+      - dokploy-network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
       interval: 30s
@@ -37,5 +34,5 @@ services:
           memory: 256M
 
 networks:
-  radio-network:
-    driver: bridge
+  dokploy-network:
+    external: true
