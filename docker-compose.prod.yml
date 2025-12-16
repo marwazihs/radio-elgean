@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Production image with optimized layers
   radio-elgean:
@@ -20,8 +18,6 @@ services:
       - FLASK_ENV=production
       - FLASK_PORT=5001
       - PORT=3000
-    env_file:
-      - .env.production
     networks:
       - radio-network
     healthcheck:
