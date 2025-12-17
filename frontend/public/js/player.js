@@ -433,7 +433,7 @@ async function toggleLike() {
     likeBtn.disabled = true;
 
     try {
-        const response = await fetch('http://localhost:5001/api/tracks/like', {
+        const response = await fetch('/api/tracks/like', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -470,7 +470,7 @@ async function checkAndUpdateLikeStatus(trackIdentifier) {
     }
 
     try {
-        const response = await fetch('http://localhost:5001/api/tracks/is-liked', {
+        const response = await fetch('/api/tracks/is-liked', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
