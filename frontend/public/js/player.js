@@ -433,6 +433,11 @@ async function toggleLike() {
     likeBtn.disabled = true;
 
     try {
+        console.log('[LIKE] Sending request:', {
+            track_identifier: currentTrackIdentifier,
+            user_fingerprint: currentUserFingerprint
+        });
+
         const response = await fetch('/api/tracks/like', {
             method: 'POST',
             headers: {
@@ -449,10 +454,14 @@ async function toggleLike() {
         }
 
         const data = await response.json();
+        console.log('[LIKE] Response received:', data);
 
         if (data.status === 'success') {
             isLiked = data.liked;
+            console.log('[LIKE] Updating UI - Count:', data.like_count, 'Liked:', isLiked);
             updateLikeUI(data.like_count, isLiked);
+        } else {
+            console.error('[LIKE] Unexpected response status:', data);
         }
     } catch (error) {
         console.error('Error toggling like:', error);
@@ -470,6 +479,8 @@ async function checkAndUpdateLikeStatus(trackIdentifier) {
     }
 
     try {
+        console.log('[LIKE-CHECK] Checking status for:', trackIdentifier);
+
         const response = await fetch('/api/tracks/is-liked', {
             method: 'POST',
             headers: {
@@ -486,9 +497,11 @@ async function checkAndUpdateLikeStatus(trackIdentifier) {
         }
 
         const data = await response.json();
+        console.log('[LIKE-CHECK] Response:', data);
 
         if (data.status === 'success') {
             isLiked = data.liked;
+            console.log('[LIKE-CHECK] Updating UI - Count:', data.like_count, 'Liked:', isLiked);
             updateLikeUI(data.like_count, isLiked);
         }
     } catch (error) {
@@ -500,7 +513,13 @@ async function checkAndUpdateLikeStatus(trackIdentifier) {
 }
 
 function updateLikeUI(count, liked) {
+    console.log('[UPDATE-UI] Setting count to:', count, 'Liked:', liked);
+    console.log('[UPDATE-UI] likeCount element:', likeCount);
+    console.log('[UPDATE-UI] Current textContent:', likeCount.textContent);
+
     likeCount.textContent = count;
+
+    console.log('[UPDATE-UI] New textContent:', likeCount.textContent);
 
     if (liked) {
         likeBtn.classList.add('liked');

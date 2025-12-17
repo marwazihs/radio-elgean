@@ -44,29 +44,38 @@ def like_track():
     track_identifier = data.get('track_identifier')
     user_fingerprint = data.get('user_fingerprint')
 
+    print(f"[LIKE] Received request - Track: {track_identifier}, User: {user_fingerprint}")
+
     if not track_identifier or not user_fingerprint:
         return jsonify({'status': 'error', 'message': 'Missing track_identifier or user_fingerprint'}), 400
 
     # Check if already liked
     is_liked = Track.is_liked_by_user(track_identifier, user_fingerprint)
+    print(f"[LIKE] Currently liked: {is_liked}")
 
     if is_liked:
         # Unlike the track
         Track.unlike_track(track_identifier, user_fingerprint)
         liked = False
+        print(f"[LIKE] Unliked track")
     else:
         # Like the track
         Track.like_track(track_identifier, user_fingerprint)
         liked = True
+        print(f"[LIKE] Liked track")
 
     # Get updated like count
     like_count = Track.get_like_count(track_identifier)
+    print(f"[LIKE] Like count: {like_count} (type: {type(like_count)})")
 
-    return jsonify({
+    response_data = {
         'status': 'success',
         'liked': liked,
         'like_count': like_count
-    })
+    }
+    print(f"[LIKE] Returning response: {response_data}")
+
+    return jsonify(response_data)
 
 @app.route('/api/tracks/is-liked', methods=['POST'])
 def is_track_liked():
@@ -75,17 +84,24 @@ def is_track_liked():
     track_identifier = data.get('track_identifier')
     user_fingerprint = data.get('user_fingerprint')
 
+    print(f"[CHECK-LIKE] Received request - Track: {track_identifier}, User: {user_fingerprint}")
+
     if not track_identifier or not user_fingerprint:
         return jsonify({'status': 'error', 'message': 'Missing track_identifier or user_fingerprint'}), 400
 
     is_liked = Track.is_liked_by_user(track_identifier, user_fingerprint)
     like_count = Track.get_like_count(track_identifier)
 
-    return jsonify({
+    print(f"[CHECK-LIKE] Is liked: {is_liked}, Like count: {like_count} (type: {type(like_count)})")
+
+    response_data = {
         'status': 'success',
         'liked': is_liked,
         'like_count': like_count
-    })
+    }
+    print(f"[CHECK-LIKE] Returning response: {response_data}")
+
+    return jsonify(response_data)
 
 if __name__ == '__main__':
     app.run(

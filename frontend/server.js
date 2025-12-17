@@ -54,15 +54,17 @@ app.get('/api/user-ip', (req, res) => {
 // Proxy endpoint for liking tracks
 app.post('/api/tracks/like', async (req, res) => {
   try {
+    console.log('[PROXY] Forwarding like request to Flask:', req.body);
     const response = await axios.post(`${FLASK_API_URL}/api/tracks/like`, req.body, {
       headers: {
         'Content-Type': 'application/json'
       },
       timeout: 5000
     });
+    console.log('[PROXY] Received response from Flask:', response.data);
     res.json(response.data);
   } catch (error) {
-    console.error('Error liking track:', error.message);
+    console.error('[PROXY] Error liking track:', error.message);
     res.status(500).json({ status: 'error', message: 'Failed to like track' });
   }
 });
@@ -70,15 +72,17 @@ app.post('/api/tracks/like', async (req, res) => {
 // Proxy endpoint for checking like status
 app.post('/api/tracks/is-liked', async (req, res) => {
   try {
+    console.log('[PROXY] Forwarding is-liked request to Flask:', req.body);
     const response = await axios.post(`${FLASK_API_URL}/api/tracks/is-liked`, req.body, {
       headers: {
         'Content-Type': 'application/json'
       },
       timeout: 5000
     });
+    console.log('[PROXY] Received response from Flask:', response.data);
     res.json(response.data);
   } catch (error) {
-    console.error('Error checking like status:', error.message);
+    console.error('[PROXY] Error checking like status:', error.message);
     res.status(500).json({ status: 'error', message: 'Failed to check like status' });
   }
 });
